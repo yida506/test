@@ -34,8 +34,8 @@ class ProxyPool:
 
     def __init__(self,
                  rediskey='proxytest',
-                 restart_time=5,
-                 restart_interval=5,
+                 restart_time=120,
+                 restart_interval=20,
                  max_proxy_size=100
                  ):
         '''
@@ -49,7 +49,6 @@ class ProxyPool:
         self._redis = RedisDB()  #使用feapder自带的redis封装,连接在setting中配置
         self.rediskey = rediskey
         self.restart_time = restart_time
-        self.clear(self.rediskey)
         self.restart_interval = restart_interval
         self.max_proxy_size = max_proxy_size
         self.proxy_to_redis(self.rediskey)
@@ -58,9 +57,11 @@ class ProxyPool:
 
     def run(self):
         """
-        将ip存入redis
+
         :return:
         """
+        # 常驻前需要清空代理池
+        self.clear()
         while True:
             if self.proxy_count < self.max_proxy_size:
                 log.error('代理数量过少,开始添加代理')
@@ -133,7 +134,7 @@ class ProxyPool:
         log.debug(f'代理已移除,'
                   f'redis中还余{self.proxy_count}条代理')
 
-    def clear(self, rediskey):
+    def clear(self):
         '''
         清空代理池
         :param rediskey:
@@ -141,7 +142,7 @@ class ProxyPool:
         '''
         log.debug('正在清空代理池')
         try:
-            self._redis.delete(rediskey)
+            self._redis.delete(self.rediskey)
         except Exception as e:
             log.error(e)
 
@@ -153,6 +154,7 @@ class ProxyPool:
 if __name__ == '__main__':
     a = ProxyPool(restart_time=120)
     a.run()
+    # a.clear()
     # a.proxy_get()
 
 
