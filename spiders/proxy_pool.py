@@ -116,8 +116,8 @@ class ProxyPoolChild(ProxyPool):
 if __name__ == '__main__':
     a = ProxyPool()
     a.run()
-    # b = ProxyPoolChild(restart_time=10)
-    # b.run()
+    b = ProxyPoolChild(restart_time=10)
+    b.run()
 
 
 
